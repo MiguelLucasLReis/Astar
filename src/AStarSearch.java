@@ -1,16 +1,10 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class Cell {
     int parent_i, parent_j;
     double f, g, h;
 
-    Cell()
-    {
+    Cell() {
         this.parent_i = 0;
         this.parent_j = 0;
         this.f = 0;
@@ -21,62 +15,67 @@ class Cell {
 
 public class AStarSearch {
 
-    private static final int ROW = 9;
-    private static final int COL = 10;
+    private static int ROW = 0;
+    private static int COL = 0;
 
-    public static void main(String[] args)
-    {
-        // Description of the Grid-
-        // 1--> The cell is not blocked
-        // 0--> The cell is blocked
-        int[][] grid = { { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-                { 1, 1, 1, 0, 1, 1, 1, 0, 1, 1 },
-                { 1, 1, 1, 0, 1, 1, 0, 1, 0, 1 },
-                { 0, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
-                { 1, 1, 1, 0, 1, 1, 1, 0, 1, 0 },
-                { 1, 0, 1, 1, 1, 1, 0, 1, 0, 0 },
-                { 1, 0, 0, 0, 0, 1, 0, 0, 0, 1 },
-                { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-                { 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 } };
+    public static void main(String[] args) {
+        int n = 0;
+        int[] sizes = {50};
+        int tamanho = sizes.length;
+        while (n < tamanho) {
+            ROW = sizes[n];
+            COL = sizes[n];
 
-        // Source is the left-most bottom-most corner
-        int[] src = { 8, 0 };
+            // Description of the Grid-
+            // 1--> The cell is not blocked
+            // 0--> The cell is blocked
+            int[][] grid = GraphGenerator.generateGraph(sizes[n]);
 
-        // Destination is the left-most top-most corner
-        int[] dest = { 0, 0 };
 
-        aStarSearch(grid, src, dest);
+            // Source is the left-most bottom-most corner
+            int[] src = {sizes[n] - 1, 0};
+            grid[src[0]][src[1]] = 1;
+
+            // Destination is the left-most top-most corner
+            int[] dest = {0, 0};
+            grid[dest[0]][dest[1]] = 1;
+
+            long tempoInicial = System.currentTimeMillis();
+            aStarSearch(grid, src, dest);
+            long tempoFinal = System.currentTimeMillis();
+            // Calcula o tempo em ms
+            long tempoEmMilissegundos = (tempoFinal - tempoInicial);
+
+            // Exibe o tempo gasto em ms
+            System.out.println("Tempo de execução: " + tempoEmMilissegundos + " milissegundos");
+            n++;
+        }
     }
 
-    private static boolean isValid(int row, int col)
-    {
+    private static boolean isValid(int row, int col) {
         return (row >= 0) && (row < ROW) && (col >= 0)
                 && (col < COL);
     }
 
     private static boolean isUnBlocked(int[][] grid,
-                                       int row, int col)
-    {
+                                       int row, int col) {
         return grid[row][col] == 1;
     }
 
     private static boolean isDestination(int row, int col,
-                                         int[] dest)
-    {
+                                         int[] dest) {
         return row == dest[0] && col == dest[1];
     }
 
     private static double calculateHValue(int row, int col,
-                                          int[] dest)
-    {
+                                          int[] dest) {
         return Math.sqrt((row - dest[0]) * (row - dest[0])
                 + (col - dest[1])
                 * (col - dest[1]));
     }
 
     private static void tracePath(Cell[][] cellDetails,
-                                  int[] dest)
-    {
+                                  int[] dest) {
         System.out.println("The Path is ");
         int row = dest[0];
         int col = dest[1];
@@ -86,14 +85,14 @@ public class AStarSearch {
         while (
                 !(cellDetails[row][col].parent_i == row
                         && cellDetails[row][col].parent_j == col)) {
-            path.put(new int[] { row, col }, true);
+            path.put(new int[]{row, col}, true);
             int temp_row = cellDetails[row][col].parent_i;
             int temp_col = cellDetails[row][col].parent_j;
             row = temp_row;
             col = temp_col;
         }
 
-        path.put(new int[] { row, col }, true);
+        path.put(new int[]{row, col}, true);
         List<int[]> pathList
                 = new ArrayList<>(path.keySet());
         Collections.reverse(pathList);
@@ -102,8 +101,7 @@ public class AStarSearch {
             if (p[0] == 2 || p[0] == 1) {
                 System.out.print("-> (" + p[0] + ", "
                         + (p[1]) + ")");
-            }
-            else {
+            } else {
                 System.out.print("-> (" + p[0] + ", " + p[1]
                         + ")");
             }
@@ -112,8 +110,7 @@ public class AStarSearch {
     }
 
     private static void aStarSearch(int[][] grid, int[] src,
-                                    int[] dest)
-    {
+                                    int[] dest) {
         if (!isValid(src[0], src[1])
                 || !isValid(dest[0], dest[1])) {
             System.out.println(
@@ -159,7 +156,7 @@ public class AStarSearch {
         cellDetails[i][j].parent_j = j;
 
         Map<Double, int[]> openList = new HashMap<>();
-        openList.put(0.0, new int[] { i, j });
+        openList.put(0.0, new int[]{i, j});
 
         boolean foundDest = false;
 
@@ -191,8 +188,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i - 1][j]
+                } else if (!closedList[i - 1][j]
                         && isUnBlocked(grid, i - 1, j)) {
                     gNew = cellDetails[i][j].g + 1;
                     hNew = calculateHValue(i - 1, j, dest);
@@ -203,7 +199,7 @@ public class AStarSearch {
 
                             || cellDetails[i - 1][j].f > fNew) {
                         openList.put(
-                                fNew, new int[] { i - 1, j });
+                                fNew, new int[]{i - 1, j});
 
                         cellDetails[i - 1][j].f = fNew;
                         cellDetails[i - 1][j].g = gNew;
@@ -224,8 +220,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i + 1][j]
+                } else if (!closedList[i + 1][j]
                         && isUnBlocked(grid, i + 1, j)) {
                     gNew = cellDetails[i][j].g + 1;
                     hNew = calculateHValue(i + 1, j, dest);
@@ -235,7 +230,7 @@ public class AStarSearch {
                             == Double.POSITIVE_INFINITY
                             || cellDetails[i + 1][j].f > fNew) {
                         openList.put(
-                                fNew, new int[] { i + 1, j });
+                                fNew, new int[]{i + 1, j});
 
                         cellDetails[i + 1][j].f = fNew;
                         cellDetails[i + 1][j].g = gNew;
@@ -256,8 +251,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i][j + 1]
+                } else if (!closedList[i][j + 1]
                         && isUnBlocked(grid, i, j + 1)) {
                     gNew = cellDetails[i][j].g + 1;
                     hNew = calculateHValue(i, j + 1, dest);
@@ -267,7 +261,7 @@ public class AStarSearch {
                             == Double.POSITIVE_INFINITY
                             || cellDetails[i][j + 1].f > fNew) {
                         openList.put(
-                                fNew, new int[] { i, j + 1 });
+                                fNew, new int[]{i, j + 1});
 
                         cellDetails[i][j + 1].f = fNew;
                         cellDetails[i][j + 1].g = gNew;
@@ -288,8 +282,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i][j - 1]
+                } else if (!closedList[i][j - 1]
                         && isUnBlocked(grid, i, j - 1)) {
                     gNew = cellDetails[i][j].g + 1;
                     hNew = calculateHValue(i, j - 1, dest);
@@ -299,7 +292,7 @@ public class AStarSearch {
                             == Double.POSITIVE_INFINITY
                             || cellDetails[i][j - 1].f > fNew) {
                         openList.put(
-                                fNew, new int[] { i, j - 1 });
+                                fNew, new int[]{i, j - 1});
 
                         cellDetails[i][j - 1].f = fNew;
                         cellDetails[i][j - 1].g = gNew;
@@ -320,8 +313,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i - 1][j + 1]
+                } else if (!closedList[i - 1][j + 1]
                         && isUnBlocked(grid, i - 1,
                         j + 1)) {
                     gNew = cellDetails[i][j].g + 1.414;
@@ -335,7 +327,7 @@ public class AStarSearch {
                             > fNew) {
                         openList.put(
                                 fNew,
-                                new int[] { i - 1, j + 1 });
+                                new int[]{i - 1, j + 1});
 
                         cellDetails[i - 1][j + 1].f = fNew;
                         cellDetails[i - 1][j + 1].g = gNew;
@@ -358,8 +350,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i - 1][j - 1]
+                } else if (!closedList[i - 1][j - 1]
                         && isUnBlocked(grid, i - 1,
                         j - 1)) {
                     gNew = cellDetails[i][j].g + 1.414;
@@ -373,7 +364,7 @@ public class AStarSearch {
                             > fNew) {
                         openList.put(
                                 fNew,
-                                new int[] { i - 1, j - 1 });
+                                new int[]{i - 1, j - 1});
 
                         cellDetails[i - 1][j - 1].f = fNew;
                         cellDetails[i - 1][j - 1].g = gNew;
@@ -396,8 +387,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i + 1][j + 1]
+                } else if (!closedList[i + 1][j + 1]
                         && isUnBlocked(grid, i + 1,
                         j + 1)) {
                     gNew = cellDetails[i][j].g + 1.414;
@@ -411,7 +401,7 @@ public class AStarSearch {
                             > fNew) {
                         openList.put(
                                 fNew,
-                                new int[] { i + 1, j + 1 });
+                                new int[]{i + 1, j + 1});
 
                         cellDetails[i + 1][j + 1].f = fNew;
                         cellDetails[i + 1][j + 1].g = gNew;
@@ -434,8 +424,7 @@ public class AStarSearch {
                     tracePath(cellDetails, dest);
                     foundDest = true;
                     return;
-                }
-                else if (!closedList[i + 1][j - 1]
+                } else if (!closedList[i + 1][j - 1]
                         && isUnBlocked(grid, i + 1,
                         j - 1)) {
                     gNew = cellDetails[i][j].g + 1.414;
@@ -449,7 +438,7 @@ public class AStarSearch {
                             > fNew) {
                         openList.put(
                                 fNew,
-                                new int[] { i + 1, j - 1 });
+                                new int[]{i + 1, j - 1});
 
                         cellDetails[i + 1][j - 1].f = fNew;
                         cellDetails[i + 1][j - 1].g = gNew;
